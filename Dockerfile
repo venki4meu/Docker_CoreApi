@@ -1,18 +1,17 @@
-# Get base SDK Image from Microsoft
-FROM mcr.Microsoft.com/dotnet/sdk:3.1 AS build-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 WORKDIR /app
 
-# Copy the .CSPROJ file and restore dependencies(via NUGET)
+# Copy csproj and restore as distinct layers
 COPY *.csproj ./
 RUN dotnet restore
 
-# Copy the project files and build our release
+# Copy everything else and build
 COPY . ./
 RUN dotnet publish -c Release -o out
 
-# Generate runtime Image
-FROM mcr.Microsoft.com/dotnet/sdk:3.1
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
-EXPOSE 8000
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet","DOCKER_COREAPI.dll"]
+ENTRYPOINT ["dotnet", "Docker_CoreApi.dll"]
+# docker_coreapi
